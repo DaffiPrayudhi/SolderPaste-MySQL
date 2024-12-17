@@ -304,7 +304,12 @@ Proses Produksi
             }
         });
     } else {
-        alert('Please enter the search key first.');
+        Swal.fire({
+                title: 'Input Tidak Lengkap',
+                text: 'Tolong input Lot Number dan ID terlebih dahulu.',
+                icon: 'error',
+                confirmButtonText: 'OK'
+            });
     }
 }
 
@@ -494,7 +499,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
 <style>
     .card-new {
-        max-height: 450px;
+        max-height: 420px;
     }
 
     #search_results {
@@ -563,7 +568,7 @@ document.addEventListener("DOMContentLoaded", function() {
         font-size: 75%;
         overflow-y: hidden;
         overflow-x: hidden;
-        max-height: 362px;
+        max-height: 350px;
         margin-bottom: 10px;
     }
 

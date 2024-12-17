@@ -31,8 +31,7 @@
             
             <!-- Right navbar links -->
             <ul class="navbar-nav ml-auto">
-                <!-- User Dropdown Menu -->
-                <li class="nav-item dropdown">
+                <!-- <li class="nav-item dropdown">
                     <a href="<?php echo base_url('admnoffprod/processing_form_offprod'); ?>" class="nav-link" data-toggle="dropdown">
                         <i class="fa fa-bell"></i>
                         <span id="notification-icon" class="label label-warning" style="display: none;"><i class="fa fa-exclamation-circle"></i></span>
@@ -45,7 +44,7 @@
                             </ul>
                         </li>
                     </ul>
-                </li>
+                </li> -->
                 <li class="nav-item dropdown">
                     <a class="nav-link" data-toggle="dropdown" href="#">
                         <i class="far fa-user text-dark"></i>
@@ -157,7 +156,7 @@
     <script src="<?= base_url('assets/plugins/bootstrap/js/bootstrap.bundle.min.js'); ?>"></script>
     <script src="<?= base_url('assets/dist/js/adminlte.min.js'); ?>"></script>
 
-<script>
+<!-- <script>
     $(document).ready(function() {
         function fetchNotifications() {
             $.ajax({
@@ -185,7 +184,7 @@
 
         setInterval(fetchNotifications, 30000); 
     });
-</script>
+</script> -->
 
 <script>
     $(document).ready(function() {

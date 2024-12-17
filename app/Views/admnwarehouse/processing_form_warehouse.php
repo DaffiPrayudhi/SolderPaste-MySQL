@@ -135,9 +135,7 @@ Proses Warehouse
                     var currentTime = new Date();
                     var diffInMinutes = (currentTime - lastTimestamp) / 60000;
                     
-                    if (diffInMinutes > 2) { //aktual waktu 360 menit = 2 jam
-                        submitTimestampForm(SearchKey, column);
-                    } else {
+                    if (column === 'mixing' && diffInMinutes <= 2) {
                         Swal.fire({
                             title: 'Apakah anda yakin?',
                             text: "Solder paste belum melewati batas minimum 2 menit. Apakah anda yakin ingin melanjutkan proses?",
@@ -151,6 +149,8 @@ Proses Warehouse
                                 submitTimestampForm(SearchKey, column);
                             }
                         });
+                    } else {
+                        submitTimestampForm(SearchKey, column);
                     }
                 },
                 error: function(xhr, status, error) {
@@ -198,6 +198,7 @@ Proses Warehouse
         document.body.appendChild(form);
         form.submit();
     }
+
     function resetFields() {
         $('#search_key').val('');
         $('#search_key').focus();
@@ -207,7 +208,6 @@ Proses Warehouse
         $('#search_key').focus();
     });
 </script>
-
 
 <script>
     let debounceTimeout;
