@@ -137,10 +137,11 @@ class UserModel extends Model
         return $this->where('lot_number NOT LIKE', 'RE%')
                     ->findAll();
     }
-    
+
     public function insertData($data)
     {
-        return $this->insert($data);
+        $data['search_key'] = $data['lot_number'] . $data['id'];  
+        $this->db->table('solder_paste_test')->insert($data); 
     }
 
     public function updateSearchKey($lot_number, $id)
@@ -357,6 +358,36 @@ class UserModel extends Model
         return $query->getResultArray();
     }
 
+    public function get_today_solder_paste_exp($limit = 5, $order = 'DESC')
+    {
+        date_default_timezone_set('Asia/Jakarta');
+        $today_start = date('Y-m-d 00:00:00');
+        $today_end = date('Y-m-d 23:59:59');
+    
+        // Hitung 2 hari yang lalu dari sekarang
+        $two_days_ago = date('Y-m-d H:i:s', strtotime('-2 days'));
+    
+        $query = $this->db->table('solder_paste_test')
+                        ->groupStart()
+                            ->where('handover >=', $two_days_ago) 
+                            ->where('handover <=', $today_end)
+                            ->where('handover IS NOT NULL')
+                        ->groupEnd()
+                        ->orGroupStart()
+                            ->where('openusing >=', $two_days_ago) 
+                            ->where('openusing <=', $today_end)
+                            ->where('openusing IS NOT NULL')
+                        ->groupEnd()
+                        ->where('returnsp IS NULL') 
+                        ->where('scrap IS NULL')
+                        ->orderBy('handover', $order)
+                        ->limit($limit)
+                        ->get();
+    
+        return $query->getResultArray();
+    }
+    
+
     public function get_today_solder_paste_offprod($order = 'DESC')
     {
         date_default_timezone_set('Asia/Jakarta');
@@ -464,7 +495,7 @@ class UserModel extends Model
             WHERE conditioning IS NOT NULL
             AND DATEDIFF('$currentDate', conditioning) = 0
             AND TIME(conditioning) BETWEEN '07:00:00' AND '19:00:00'  
-            AND TIMESTAMPDIFF(MINUTE, conditioning, NOW()) >= 1 
+            AND TIMESTAMPDIFF(MINUTE, conditioning, NOW()) >= 2 
             AND mixing IS NULL
             AND handover IS NULL
             AND lot_number NOT LIKE 'RE%'

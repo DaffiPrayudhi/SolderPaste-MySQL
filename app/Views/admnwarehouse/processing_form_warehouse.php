@@ -122,11 +122,60 @@ Proses Warehouse
 
 <script>
     function saveTimestamp(column) {
-    var SearchKey = document.getElementById('search_key').value;
-    if (SearchKey) {
+        var SearchKey = document.getElementById('search_key').value;
+        if (SearchKey) {
+            
+            $.ajax({
+                url: '<?= base_url('user/get_last_timestamp'); ?>',
+                type: 'POST',
+                dataType: 'json',
+                data: { search_key: SearchKey },
+                success: function(response) {
+                    var lastTimestamp = new Date(response.timestamp);
+                    var currentTime = new Date();
+                    var diffInMinutes = (currentTime - lastTimestamp) / 60000;
+                    
+                    if (diffInMinutes > 2) { //aktual waktu 360 menit = 2 jam
+                        submitTimestampForm(SearchKey, column);
+                    } else {
+                        Swal.fire({
+                            title: 'Apakah anda yakin?',
+                            text: "Solder paste belum melewati batas minimum 2 menit. Apakah anda yakin ingin melanjutkan proses?",
+                            icon: 'warning',
+                            showCancelButton: true,
+                            confirmButtonColor: '#3085d6',
+                            cancelButtonColor: '#d33',
+                            confirmButtonText: 'Yes, lanjutkan'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                submitTimestampForm(SearchKey, column);
+                            }
+                        });
+                    }
+                },
+                error: function(xhr, status, error) {
+                    Swal.fire({
+                        title: 'Error',
+                        text: 'Gagal mengambil data timestamp.',
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
+                }
+            });
+        } else {
+            Swal.fire({
+                title: 'Input Tidak Lengkap',
+                text: 'Tolong input Lot Number dan ID terlebih dahulu.',
+                icon: 'error',
+                confirmButtonText: 'OK'
+            });
+        }
+    }
+
+    function submitTimestampForm(SearchKey, column) {
         var form = document.createElement('form');
         form.method = 'POST';
-        form.action = '<?= base_url('user/save_timewarehouse_search_key'); ?>'; 
+        form.action = '<?= base_url('user/save_timewarehouse_search_key'); ?>';
 
         var SearchKeyField = document.createElement('input');
         SearchKeyField.type = 'hidden';
@@ -147,61 +196,18 @@ Proses Warehouse
         form.appendChild(timestampField);
 
         document.body.appendChild(form);
-
-        console.log('Data yang dikirim:', SearchKey, column, timestampField.value);
-
         form.submit();
-
-        var buttons = document.querySelectorAll('button');
-        buttons.forEach(function(button) {
-            if (button.textContent.trim().toLowerCase() === column.toLowerCase()) {
-                button.disabled = true;
-            }
-        });
-    } else {
-        alert('Please enter the search key first.');
     }
-}
-
-
-
-    function checkTimestamps(SearchKey) {
-        if (SearchKey) {
-            $.ajax({
-                url: '<?= base_url('user/check_timestamps'); ?>', 
-                type: 'POST',
-                dataType: 'json',
-                contentType: 'application/json',
-                data: JSON.stringify({ search_key: SearchKey }),
-                success: function(data) {
-                },
-                error: function(xhr, status, error) {
-                    alert('Terjadi kesalahan saat memeriksa timestamp.'); 
-                }
-            });
-        }
-    }
-
     function resetFields() {
         $('#search_key').val('');
         $('#search_key').focus();
     }
 
     $(document).ready(function() {
-        var SearchKey = $('#search_key').val();
-        if (SearchKey) {
-            checkTimestamps(SearchKey);
-        }
-
-        $('#search_key').on('input', function() {
-            checkTimestamps($(this).val());
-        });
-    });
-
-    $(document).ready(function() {
         $('#search_key').focus();
     });
 </script>
+
 
 <script>
     let debounceTimeout;

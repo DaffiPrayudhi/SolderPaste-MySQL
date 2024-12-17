@@ -133,7 +133,12 @@ Solder Paste External
             }
         });
     } else {
-        alert('Please enter the search key first.');
+        Swal.fire({
+            title: 'Data Belum diisi',
+            text: 'Tolong input data terlebih dahulu.',
+            icon: 'error',
+            confirmButtonText: 'OK'
+        });
     }
 }
 

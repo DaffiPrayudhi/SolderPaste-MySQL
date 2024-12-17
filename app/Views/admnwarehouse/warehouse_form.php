@@ -113,9 +113,12 @@ Incoming
         var id = document.getElementById('id').value.trim();
 
         if (lot_number !== '' && id !== '') {
+            var search_key = lot_number + id;  
+
             var entry = {
                 lot_number: lot_number,
                 id: id,
+                search_key: search_key,  
                 incoming: getCurrentDateTime()
             };
 

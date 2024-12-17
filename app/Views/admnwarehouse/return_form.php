@@ -40,7 +40,7 @@ Return
                                             <th class="text-center">Lot Number</th>
                                             <th class="text-center">Return</th>
                                             <th class="text-center">Incoming</th>
-                                            <th class="text-center">Actionsss</th>
+                                            <th class="text-center">Action</th>
                                         </tr>
                                     </thead>
                                     <tbody id="temp-data">

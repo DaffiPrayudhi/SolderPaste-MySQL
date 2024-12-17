@@ -262,11 +262,13 @@ class User extends Controller
         
         $today_entries_prod = $userModel->get_today_solder_paste_prod();
         $today_entries_open = $userModel->get_today_solder_paste_open();
+        $today_entries_exp = $userModel->get_today_solder_paste_exp();
 
         $data = [
             'pageTitle' => 'Produksi Form',
             'today_entries_prod' => $today_entries_prod,
             'today_entries_open' => $today_entries_open,
+            'today_entries_exp' => $today_entries_exp,
         ];
 
         return view('admnproduksi/processing_form_produksi', $data);
@@ -499,22 +501,12 @@ class User extends Controller
                         }
                         break;
                     case 'mixing':
-                        $conditioningTimestamp = $userModel->get_conditioning_timestamp($search_key);
-                        if (!$conditioningTimestamp) {
+                        if (!$userModel->get_conditioning_timestamp($search_key)) {
                             $valid = false;
                             session()->setFlashdata('error', 'Tolong input data Conditioning terlebih dahulu sebelum input data Mixing.');
                         } elseif ($userModel->get_mixing_timestamp($search_key)) {
                             $valid = false;
                             session()->setFlashdata('error', 'Data Mixing sudah diinput sebelumnya.');
-                        } else {
-                            $conditioningTime = strtotime($conditioningTimestamp);
-                            $currentTime = strtotime($timestamp);
-                            $timeDifferenceInSeconds = $currentTime - $conditioningTime;
-                            $timeDifferenceInMinutes = $timeDifferenceInSeconds / 60;
-                            if ($timeDifferenceInMinutes < 1) { // 120 menit = 2 jam
-                                $valid = false;
-                                session()->setFlashdata('error', 'Tolong tunggu minimal 2 jam setelah Conditioning diinput sebelum input data Mixing.');
-                            }
                         }
                         break;
                     case 'handover':
@@ -1053,32 +1045,32 @@ class User extends Controller
     }
 
     public function save_timewarehouse_scrap_to_return()
-{
-    $lot_number = $this->request->getPost('lot_number');
-    $id = $this->request->getPost('id');
+    {
+        $lot_number = $this->request->getPost('lot_number');
+        $id = $this->request->getPost('id');
 
-    if (empty($lot_number) || empty($id)) {
-        return redirect()->back()->with('error', 'Lot number and ID cannot be empty.');
+        if (empty($lot_number) || empty($id)) {
+            return redirect()->back()->with('error', 'Lot number and ID cannot be empty.');
+        }
+
+        $UserModel = $this->UserModel;
+
+        $search_key = $lot_number . '.' . $id;
+
+    
+        $existingEntry = $UserModel->where('lot_number', $lot_number)->where('id', $id)->first();
+
+        if (!$existingEntry) {
+            return redirect()->back()->with('error', 'Lot number and ID combination not found.');
+        }
+
+        $timestamp = date('Y-m-d H:i:s');
+        $UserModel->update_lot_number_scrap($existingEntry['id'], $existingEntry['lot_number'], $timestamp);
+
+        $UserModel->insert_new_solder_paste_row_scrap($existingEntry['lot_number'], $existingEntry, $timestamp);
+
+        return redirect()->back()->with('success', 'Solder paste scrap successfully returned.');
     }
-
-    $UserModel = $this->UserModel;
-
-    $search_key = $lot_number . '.' . $id;
-
-  
-    $existingEntry = $UserModel->where('lot_number', $lot_number)->where('id', $id)->first();
-
-    if (!$existingEntry) {
-        return redirect()->back()->with('error', 'Lot number and ID combination not found.');
-    }
-
-    $timestamp = date('Y-m-d H:i:s');
-    $UserModel->update_lot_number_scrap($existingEntry['id'], $existingEntry['lot_number'], $timestamp);
-
-    $UserModel->insert_new_solder_paste_row_scrap($existingEntry['lot_number'], $existingEntry, $timestamp);
-
-    return redirect()->back()->with('success', 'Solder paste scrap successfully returned.');
-}
 
 
     public function check_timestamps()
@@ -1399,6 +1391,27 @@ class User extends Controller
 
         return $this->response->setJSON([]);
     }
+
+    public function get_last_timestamp()
+    {
+        $request = $this->request;
+        $search_key = $request->getPost('search_key');
+        $userModel = new UserModel();
+
+        $conditioningTimestamp = $userModel->get_conditioning_timestamp($search_key);
+
+        if ($conditioningTimestamp) {
+            return $this->response->setJSON([
+                'timestamp' => $conditioningTimestamp
+            ]);
+        } else {
+            return $this->response->setJSON([
+                'timestamp' => null
+            ]);
+        }
+    }
+
+
 
 
 }

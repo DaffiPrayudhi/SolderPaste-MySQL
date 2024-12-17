@@ -38,7 +38,8 @@ $routes->get('user/search_key_prod', 'User::search_key_prod');
 $routes->get('user/search_key_offprod', 'User::search_key_offprod');
 $routes->get('user/search_key_incoming', 'User::search_key_incoming');
 $routes->get('user/search_key_ext', 'User::search_key_ext');
-
+$routes->post('user/check_time_difference', 'User::check_time_difference');
+$routes->post('user/get_last_timestamp', 'User::get_last_timestamp');
 
 
 $routes->group('admnwarehouse', ['filter' => 'authRole:1'], function ($routes) {
