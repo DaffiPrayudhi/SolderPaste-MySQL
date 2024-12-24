@@ -14,6 +14,7 @@ $routes->post('loginMe', 'Login::loginMe');
 $routes->get('register', 'Register::index');
 $routes->post('registerMe', 'Register::registerMe');
 $routes->post('user/save_temp_data', 'User::save_temp_data');
+$routes->post('user/save_temp_dataoff', 'User::save_temp_dataoff');
 $routes->post('user/save_timewarehouse', 'User::save_timewarehouse');
 $routes->post('user/save_timewarehouse_search_key', 'User::save_timewarehouse_search_key');
 $routes->post('user/save_timeproduksi_search_key', 'User::save_timeproduksi_search_key');
@@ -40,6 +41,7 @@ $routes->get('user/search_key_incoming', 'User::search_key_incoming');
 $routes->get('user/search_key_ext', 'User::search_key_ext');
 $routes->post('user/check_time_difference', 'User::check_time_difference');
 $routes->post('user/get_last_timestamp', 'User::get_last_timestamp');
+$routes->post('user/check_data_exists', 'User::check_data_exists');
 
 
 $routes->group('admnwarehouse', ['filter' => 'authRole:1'], function ($routes) {

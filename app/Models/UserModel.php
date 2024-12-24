@@ -284,7 +284,7 @@ class UserModel extends Model
                         ->orWhere('handover >=', $today_start)
                         ->where('handover <=', $today_end)
                         ->where('lot_number NOT LIKE', 'RE%', 'AND') 
-                        ->orderBy('incoming', $order)
+                        ->orderBy('conditioning', $order)
                         ->get();
 
         return $query->getResultArray();
@@ -363,20 +363,20 @@ class UserModel extends Model
         date_default_timezone_set('Asia/Jakarta');
         $today_start = date('Y-m-d 00:00:00');
         $today_end = date('Y-m-d 23:59:59');
-    
-        // Hitung 2 hari yang lalu dari sekarang
         $two_days_ago = date('Y-m-d H:i:s', strtotime('-2 days'));
     
         $query = $this->db->table('solder_paste_test')
                         ->groupStart()
-                            ->where('handover >=', $two_days_ago) 
-                            ->where('handover <=', $today_end)
-                            ->where('handover IS NOT NULL')
-                        ->groupEnd()
-                        ->orGroupStart()
-                            ->where('openusing >=', $two_days_ago) 
-                            ->where('openusing <=', $today_end)
-                            ->where('openusing IS NOT NULL')
+                            ->groupStart()
+                                ->where('handover >=', $two_days_ago)
+                                ->where('handover <=', $today_end)
+                                ->where('handover IS NOT NULL')
+                            ->groupEnd()
+                            ->orGroupStart()
+                                ->where('openusing >=', $two_days_ago)
+                                ->where('openusing <=', $today_end)
+                                ->where('openusing IS NOT NULL')
+                            ->groupEnd()
                         ->groupEnd()
                         ->where('returnsp IS NULL') 
                         ->where('scrap IS NULL')
@@ -385,8 +385,7 @@ class UserModel extends Model
                         ->get();
     
         return $query->getResultArray();
-    }
-    
+    }    
 
     public function get_today_solder_paste_offprod($order = 'DESC')
     {
@@ -495,7 +494,7 @@ class UserModel extends Model
             WHERE conditioning IS NOT NULL
             AND DATEDIFF('$currentDate', conditioning) = 0
             AND TIME(conditioning) BETWEEN '07:00:00' AND '19:00:00'  
-            AND TIMESTAMPDIFF(MINUTE, conditioning, NOW()) >= 2 
+            AND TIMESTAMPDIFF(MINUTE, conditioning, NOW()) >= 120 
             AND mixing IS NULL
             AND handover IS NULL
             AND lot_number NOT LIKE 'RE%'
@@ -515,7 +514,7 @@ class UserModel extends Model
             WHERE openusing IS NOT NULL
             AND DATEDIFF('$currentDate', openusing) = 0  
             AND TIME(openusing) BETWEEN '07:00:00' AND '19:00:00' 
-            AND TIMESTAMPDIFF(MINUTE, openusing, NOW()) >= 2
+            AND TIMESTAMPDIFF(MINUTE, openusing, NOW()) >= 480
             AND returnsp IS NULL 
             AND scrap IS NULL 
             AND lot_number NOT LIKE 'RE%' 

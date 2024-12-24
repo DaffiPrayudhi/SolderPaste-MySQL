@@ -115,18 +115,47 @@ Incoming
         if (lot_number !== '' && id !== '') {
             var search_key = lot_number + id;  
 
-            var entry = {
-                lot_number: lot_number,
-                id: id,
-                search_key: search_key,  
-                incoming: getCurrentDateTime()
-            };
+            fetch('<?= base_url('user/check_data_exists'); ?>', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '<?= csrf_hash(); ?>'
+                },
+                body: JSON.stringify({ lot_number: lot_number, id: id })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.exists) {
+                    Swal.fire({
+                        title: 'Data sudah ada',
+                        text: 'Lot Number dan ID sudah ada di database.',
+                        icon: 'warning',
+                        confirmButtonText: 'OK'
+                    });
+                } else {
+                    var entry = {
+                        lot_number: lot_number,
+                        id: id,
+                        search_key: search_key,  
+                        incoming: getCurrentDateTime()
+                    };
 
-            tempData.push(entry);
-            renderTempData();
-            saveTempDataToLocalStorage();
-            resetFields();
-            document.getElementById('lot_number').focus();
+                    tempData.push(entry);
+                    renderTempData();
+                    saveTempDataToLocalStorage();
+                    resetFields();
+                    document.getElementById('lot_number').focus();
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.fire({
+                    title: 'Error',
+                    text: 'Gagal memeriksa data di database.',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
+            });
         } else {
             Swal.fire({
                 title: 'Input Tidak Lengkap',
@@ -278,7 +307,6 @@ Incoming
             }
         });
     }
-    
 </script>
 
 <style>

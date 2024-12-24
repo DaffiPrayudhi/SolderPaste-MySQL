@@ -280,11 +280,13 @@ class User extends Controller
         $userModel = new UserModel();
         $today_entries_offprod = $userModel->get_today_solder_paste_offprod();
         $today_entries_offopen = $userModel->get_today_solder_paste_offopen();
+        $today_entries_exp = $userModel->get_today_solder_paste_exp();
 
         $data = [
             'pageTitle' => 'Produksi Form',
             'today_entries_offprod' => $today_entries_offprod,
             'today_entries_offopen' => $today_entries_offopen,
+            'today_entries_exp' => $today_entries_exp,
         ];
 
         return view('admnoffprod/processing_form_offprod', $data);
@@ -326,6 +328,57 @@ class User extends Controller
     }
 
     public function save_temp_data()
+    {
+        try {
+            $requestData = $this->request->getJSON();
+            $tempData = $requestData->tempData;
+
+            if (!is_array($tempData)) {
+                throw new \Exception('Invalid data format');
+            }
+
+            if (empty($tempData)) {
+                throw new \Exception('No data to save');
+            }
+
+            $userModel = new UserModel();
+            $existingData = [];
+
+            foreach ($tempData as $entry) {
+                if ($userModel->dataExists($entry->lot_number, $entry->id)) {
+                    $existingData[] = [
+                        'lot_number' => $entry->lot_number,
+                        'id' => $entry->id
+                    ];
+                    continue;
+                }
+
+                date_default_timezone_set('Asia/Jakarta');
+                $insertData = [
+                    'lot_number' => $entry->lot_number,
+                    'id' => $entry->id,
+                    'incoming' => date('Y-m-d H:i:s')
+                ];
+                $userModel->insertData($insertData);
+            }
+
+            if (!empty($existingData)) {
+                $response = [
+                    'message' => 'Some data already exist.',
+                    'existingData' => $existingData
+                ];
+                return $this->response->setStatusCode(400)->setJSON($response);
+            }
+
+            $response = ['message' => 'Data saved successfully.'];
+            return $this->response->setJSON($response);
+        } catch (\Exception $e) {
+            $response = ['message' => 'Failed to save data: ' . $e->getMessage()];
+            return $this->response->setStatusCode(500)->setJSON($response);
+        }
+    }
+
+    public function save_temp_dataoff()
     {
         try {
             $requestData = $this->request->getJSON();
@@ -946,22 +999,12 @@ class User extends Controller
                         }
                         break;
                     case 'mixing':
-                        $conditioningTimestamp = $userModel->get_conditioning_timestamp($search_key);
-                        if (!$conditioningTimestamp) {
+                        if (!$userModel->get_conditioning_timestamp($search_key)) {
                             $valid = false;
                             session()->setFlashdata('error', 'Tolong input data Conditioning terlebih dahulu sebelum input data Mixing.');
                         } elseif ($userModel->get_mixing_timestamp($search_key)) {
                             $valid = false;
                             session()->setFlashdata('error', 'Data Mixing sudah diinput sebelumnya.');
-                        } else {
-                            $conditioningTime = strtotime($conditioningTimestamp);
-                            $currentTime = strtotime($timestamp);
-                            $timeDifferenceInSeconds = $currentTime - $conditioningTime;
-                            $timeDifferenceInMinutes = $timeDifferenceInSeconds / 60;
-                            if ($timeDifferenceInMinutes < 120) { // 120 menit = 2 jam
-                                $valid = false;
-                                session()->setFlashdata('error', 'Tolong tunggu minimal 2 jam setelah Conditioning diinput sebelum input data Mixing.');
-                            }
                         }
                         break;
                     case 'handover':
@@ -996,15 +1039,11 @@ class User extends Controller
                             $current_time = new \DateTime($timestamp);
                             $interval = $current_time->diff($openusing_time);
 
-                            // $total_minutes = ($interval->days * 24 * 60) + ($interval->h * 60) + $interval->i;
-                            // if ($total_minutes >= 480) { // aktual waktu 8 jam = 480 menit
-                            // $valid = false;
-                            // session()->setFlashdata('error', 'Waktu input data Return sudah lewat dari batas waktu 8 jam.');
+                            $total_minutes = ($interval->days * 24 * 60) + ($interval->h * 60) + $interval->i;
+                            if ($total_minutes >= 2) { // aktual waktu 8 jam = 480 menit
+                            $valid = false;
+                            session()->setFlashdata('error', 'Waktu input data Return sudah lewat dari batas waktu 8 jam.');
         
-                            if ($interval->i >= 1 || $interval->h > 0 || $interval->days > 0) { //aktual waktu 8 jam = 480 menit
-                                $valid = false;
-                                session()->setFlashdata('error', 'Waktu input data Return sudah lewat dari batas waktu 8 jam.');
-    
                             } else {
                                 $lot_number = $existing_data['lot_number'];
                                 $userModel->update_lot_number($existing_data['id'], $lot_number, $timestamp);
@@ -1411,6 +1450,27 @@ class User extends Controller
         }
     }
 
+    public function check_data_exists()
+    {
+        try {
+            $requestData = $this->request->getJSON();
+            $lot_number = $requestData->lot_number;
+            $id = $requestData->id;
+
+            if (!$lot_number || !$id) {
+                return $this->response->setStatusCode(400)->setJSON(['message' => 'Lot Number dan ID diperlukan']);
+            }
+
+            $userModel = new UserModel();
+            $exists = $userModel->dataExists($lot_number, $id);
+
+            return $this->response->setJSON(['exists' => $exists]);
+
+        } catch (\Exception $e) {
+            $response = ['message' => 'Gagal memeriksa data: ' . $e->getMessage()];
+            return $this->response->setStatusCode(500)->setJSON($response);
+        }
+    }
 
 
 

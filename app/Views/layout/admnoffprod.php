@@ -31,7 +31,7 @@
             
             <!-- Right navbar links -->
             <ul class="navbar-nav ml-auto">
-                <!-- <li class="nav-item dropdown">
+                <li class="nav-item dropdown">
                     <a href="<?php echo base_url('admnoffprod/processing_form_offprod'); ?>" class="nav-link" data-toggle="dropdown">
                         <i class="fa fa-bell"></i>
                         <span id="notification-icon" class="label label-warning" style="display: none;"><i class="fa fa-exclamation-circle"></i></span>
@@ -44,7 +44,7 @@
                             </ul>
                         </li>
                     </ul>
-                </li> -->
+                </li>
                 <li class="nav-item dropdown">
                     <a class="nav-link" data-toggle="dropdown" href="#">
                         <i class="far fa-user text-dark"></i>
@@ -90,7 +90,7 @@
                                 </p>
                             </a>
                         </li>
-                        <!-- <li class="nav-item has-treeview">
+                        <li class="nav-item has-treeview">
                             <a href="#" class="nav-link">
                                 <i class="nav-icon fas fa-th-list"></i>
                                 <p>
@@ -118,7 +118,7 @@
                                     </a>
                                 </li>
                             </ul>
-                        </li> -->
+                        </li>
                     </ul>
                 </nav>
             </div>

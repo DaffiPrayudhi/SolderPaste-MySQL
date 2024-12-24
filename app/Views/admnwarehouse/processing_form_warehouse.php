@@ -135,10 +135,10 @@ Proses Warehouse
                     var currentTime = new Date();
                     var diffInMinutes = (currentTime - lastTimestamp) / 60000;
                     
-                    if (column === 'mixing' && diffInMinutes <= 2) {
+                    if (column === 'mixing' && diffInMinutes <= 120) {
                         Swal.fire({
                             title: 'Apakah anda yakin?',
-                            text: "Solder paste belum melewati batas minimum 2 menit. Apakah anda yakin ingin melanjutkan proses?",
+                            text: "Solder paste belum melewati batas minimum 2 jam. Apakah anda yakin ingin melanjutkan proses?",
                             icon: 'warning',
                             showCancelButton: true,
                             confirmButtonColor: '#3085d6',
