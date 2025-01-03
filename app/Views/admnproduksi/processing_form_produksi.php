@@ -210,10 +210,10 @@ Proses Produksi
                 let rowClass = 'default-color'; 
                 let statusText = '';
                 
-                if (timeDiff > 2) { // aktual waktu 8 jam = 480 menit
+                if (timeDiff > 480) { // aktual waktu 8 jam = 480 menit
                     rowClass = 'table-danger';
                     statusText = 'Melebihi 8 jam';
-                } else if (timeDiff > 1) { // aktual waktu 6 jam = 360 menit
+                } else if (timeDiff > 360) { // aktual waktu 6 jam = 360 menit
                     rowClass = 'table-warning';
                     statusText = 'Melebihi 6 jam';
                 } else {
@@ -247,7 +247,7 @@ Proses Produksi
                     const openusingTime = new Date(openusingAttr);
                     const openusingDiff = (currentTime - openusingTime) / 60000; 
 
-                    if (openusingDiff > 2) { // aktual waktu 8 jam (480 menit)
+                    if (openusingDiff > 480) { // aktual waktu 8 jam (480 menit)
                         rowClass = 'table-danger';
                         statusText = 'Out Off Time';
                     }
@@ -255,7 +255,7 @@ Proses Produksi
                     const handoverTime = new Date(handoverAttr);
                     const handoverDiff = (currentTime - handoverTime) / 60000; 
 
-                    if (handoverDiff > 2) { // aktual waktu 2880 menit = 48 jam (2 hari)
+                    if (handoverDiff > 2880) { // aktual waktu 2880 menit = 48 jam (2 hari)
                         rowClass = 'table-danger';
                         statusText = 'Out Off Time';
                     }
